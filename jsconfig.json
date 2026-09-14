@@ -1,0 +1,25 @@
+{
+	"extends": "./.svelte-kit/tsconfig.json",
+	"compilerOptions": {
+		"allowJs": true,
+		// Off deliberately: this codebase has no JSDoc type annotations, so
+		// checkJs surfaces wall-to-wall inference noise (e.g. every
+		// `export let x;` with no default inferring as `undefined`) rather
+		// than real bugs. svelte-package's own .d.ts emission for consumers
+		// doesn't depend on this — it works the same either way. Revisit if
+		// the components ever get JSDoc types added.
+		"checkJs": false,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"sourceMap": true,
+		"strict": true,
+		"moduleResolution": "bundler"
+	}
+	// Path aliases are handled by https://svelte.dev/docs/kit/configuration#alias
+	// except $lib which is handled by https://svelte.dev/docs/kit/configuration#files
+	//
+	// If you want to overwrite includes/excludes, make sure to copy over the relevant includes/excludes
+	// from the referenced tsconfig.json - TypeScript does not merge them in
+}

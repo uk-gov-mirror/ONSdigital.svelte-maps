@@ -1,24 +1,28 @@
 <script>
 	// Components for working with Mapbox layers
-	import { getData, getColor, getTopo } from "./js/utils.js";
-	import Map from './Map.svelte';
-	import MapSource from './MapSource.svelte';
-	import MapLayer from './MapLayer.svelte';
-	import MapTooltip from './MapTooltip.svelte';
-	
+	import { getData, getColor, getTopo } from "./utils.js";
+	import { Map, MapSource, MapLayer, MapTooltip } from '$lib';
+	import { base } from '$app/paths';
+	import { setWorkerUrl } from 'maplibre-gl';
+
+	// See scripts/copy-maplibre-worker.js — this points maplibre-gl at a
+	// same-origin copy of its worker script instead of relying on its
+	// default (bundler-chunking-sensitive) self-relative resolution.
+	setWorkerUrl(`${base}/maplibre/maplibre-gl-worker.mjs`);
+
 	const colors = {
 		seq5: ['rgb(234, 236, 177)', 'rgb(169, 216, 145)', 'rgb(0, 167, 186)', 'rgb(0, 78, 166)', 'rgb(0, 13, 84)'],
-		div10: ['#67001f','#b2182b','#d6604d','#f4a582','#fddbc7','#d1e5f0','#92c5de','#4393c3','#2166ac','#053061']	
+		div10: ['#67001f','#b2182b','#d6604d','#f4a582','#fddbc7','#d1e5f0','#92c5de','#4393c3','#2166ac','#053061']
 	};
 
-  const pconData = "./data/salary-pcon10.csv";
+  const pconData = `${base}/data/salary-pcon10.csv`;
   const pconBounds = {
-	  url: "./data/pcon10-bounds.json",
+	  url: `${base}/data/pcon10-bounds.json`,
 	  layer: "PCONreg",
 	  code: "AREACD"
 	};
-	
-	const lsoaData = "./data/imd-lsoa11.csv";
+
+	const lsoaData = `${base}/data/imd-lsoa11.csv`;
 	const lsoaBounds = {
 		url: "https://cdn.ons.gov.uk/maptiles/administrative/lsoa/v1/boundaries/{z}/{x}/{y}.pbf",
 		layer: "boundaries",
@@ -34,15 +38,15 @@
 		{
 			key: "omt",
 			label: "OpenMapTiles",
-			path: "./data/style-ons-light.json"
+			path: `${base}/data/style-ons-light.json`
 		},
 		{
 			key: "osm",
 			label: "OpenStreetMap",
-			path: "./data/style-osm-grey.json"
+			path: `${base}/data/style-osm-grey.json`
 		},
 	];
-	
+
 	// Bindings
 	let map1, map2, map3, map4;
 
@@ -63,7 +67,7 @@
 	// Get geometry for geojson maps
 	getTopo(pconBounds.url, pconBounds.layer)
 	.then(res => geojson = res);
-	
+
 	// Get data for geojson maps
 	getData(pconData)
 	.then(res => {
@@ -98,7 +102,7 @@
 	<div class="wrapper">
     <h1>ONS Svelte Map Components</h1>
     <p>This library contains a series of components for building Maplibre GL JS maps within Svelte apps. They are primarily built with data visualisation use cases in mind, and generally assume the use of self-hosted map tiles and/or geojson sources.</p>
-		<p>Below are a series of examples of how to use the components to display maps. View the source code of the <a href="https://github.com/ONSvisual/svelte-maps/blob/main/src/App.svelte">App.svelte</a> file in this repository to see how they are used.</p>
+		<p>Below are a series of examples of how to use the components to display maps. View the source code of the <a href="https://github.com/ONSvisual/svelte-maps/blob/main/src/routes/+page.svelte">+page.svelte</a> file in this repository to see how they are used.</p>
 		<p>
 			Base map:
 			<select bind:value={baseMap}>
