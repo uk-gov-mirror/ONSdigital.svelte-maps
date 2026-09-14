@@ -5,6 +5,8 @@ import dsv from '@rollup/plugin-dsv';
 import livereload from 'rollup-plugin-livereload';
 import json from "@rollup/plugin-json";
 import css from 'rollup-plugin-css-only';
+import { spawn } from 'child_process';
+import copyMaplibreWorker from './rollup.copy-worker.js';
 
 export default {
 	input: 'src/main.js',
@@ -23,8 +25,7 @@ export default {
 		svelte({
 			// enable run-time checks when not in production
 			compilerOptions: {
-				dev: true,
-				hydratable: false
+				dev: true
 			}
 		}),
 		// we'll extract any component CSS out into
@@ -41,6 +42,10 @@ export default {
 			dedupe: importee => importee === 'svelte' || importee.startsWith('svelte/')
 		}),
 		commonjs(),
+
+		// Copy maplibre-gl's worker script alongside the bundle so its
+		// default (same-origin) worker-loading resolution succeeds.
+		copyMaplibreWorker(),
 
 		// In dev mode, call `npm run start` once
 		// the bundle has been generated
@@ -63,7 +68,7 @@ function serve() {
 			if (!started) {
 				started = true;
 
-				require('child_process').spawn('npm', ['run', 'start', '--', '--dev'], {
+				spawn('npm', ['run', 'start', '--', '--dev'], {
 					stdio: ['ignore', 'inherit', 'inherit'],
 					shell: true
 				});

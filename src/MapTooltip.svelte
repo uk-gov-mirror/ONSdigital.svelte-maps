@@ -1,10 +1,10 @@
 <script>
   import { getContext, onDestroy } from 'svelte';
-  import maplibre from 'maplibre-gl';
+  import { Popup } from 'maplibre-gl';
 
   export let content;
 
-  const tooltip = new maplibre.Popup({
+  const tooltip = new Popup({
 		closeButton: false,
 		closeOnClick: false
 	});

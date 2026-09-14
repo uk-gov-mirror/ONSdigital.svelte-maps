@@ -2,10 +2,19 @@
   import {
     setContext,
     createEventDispatcher,
-    onMount,
-    onDestroy,
+    onMount
   } from "svelte";
-  import maplibre from "maplibre-gl";
+  import { Map, NavigationControl, GeolocateControl } from "maplibre-gl";
+  // Pulls in maplibre-gl's own CSS via whatever the consumer's bundler uses
+  // to handle CSS imports (Vite, webpack, etc.) — no runtime CDN fetch, and
+  // always matches whatever maplibre-gl version the consumer has installed.
+  import "maplibre-gl/dist/maplibre-gl.css";
+
+  // MapLibre GL JS resolves its tile-processing worker script relative to its
+  // own module URL by default (same-origin only — the Worker constructor
+  // rejects a cross-origin script URL regardless of CORS headers, so this
+  // can't be pointed at a CDN). Whatever build produces the final bundle must
+  // ensure maplibre-gl-worker.mjs is copied alongside it; see rollup configs.
 
   const dispatch = createEventDispatcher();
 
@@ -27,7 +36,6 @@
       },
     ],
   }; // Can be a json style definition or a url
-  export let css = null; // To set a local url for the css file (instead of CDN default)
   export let options = {};
   export let minzoom = 0;
   export let maxzoom = 14;
@@ -103,7 +111,7 @@
   }
 
   onMount(() => {
-    const newmap = new maplibre.Map({
+    const newmap = new Map({
       container,
       style,
       minZoom: minzoom,
@@ -121,10 +129,10 @@
     }
 
     if (controls && !Array.isArray(controls)) {
-      map.addControl(new maplibre.NavigationControl({ showCompass: false }));
+      map.addControl(new NavigationControl({ showCompass: false }));
     } else if (Array.isArray(controls) && controls != ["locate"]) {
       map.addControl(
-        new maplibre.NavigationControl({
+        new NavigationControl({
           showCompass: controls.includes("compass"),
           visualizePitch: controls.includes("pitch"),
         })
@@ -132,7 +140,7 @@
     }
 
     if (Array.isArray(controls) && controls.includes("locate")) {
-      map.addControl(new maplibre.GeolocateControl());
+      map.addControl(new GeolocateControl());
     }
 
     // Get initial zoom level
@@ -177,15 +185,6 @@
   }
   $: setStyle(style);
 </script>
-
-<svelte:head>
-  <link
-    rel="stylesheet"
-    href={css
-      ? css
-      : "https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.css"}
-  />
-</svelte:head>
 
 <div bind:this={container} {id} class="map">
   {#if loaded}

@@ -5,6 +5,7 @@ import dsv from '@rollup/plugin-dsv';
 import { terser } from 'rollup-plugin-terser'
 import json from "@rollup/plugin-json";
 import css from 'rollup-plugin-css-only';
+import copyMaplibreWorker from './rollup.copy-worker.js';
 
 export default [
 	{
@@ -23,8 +24,7 @@ export default [
 
 			svelte({
 				compilerOptions: {
-					dev: false, 
-					hydratable: false
+					dev: false
 				}
 			}),
 			// we'll extract any component CSS out into
@@ -42,7 +42,11 @@ export default [
 			}),
 			commonjs(),
 
-			terser()
+			terser(),
+
+			// Copy maplibre-gl's worker script alongside the bundle so its
+			// default (same-origin) worker-loading resolution succeeds.
+			copyMaplibreWorker()
 
 		],
 		watch: {
