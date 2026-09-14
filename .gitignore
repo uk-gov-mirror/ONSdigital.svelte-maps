@@ -1,4 +1,7 @@
 /node_modules/
-/dist/build/
+/.svelte-kit/
+/build/
+/dist/
+/static/maplibre/
 
 .DS_Store
