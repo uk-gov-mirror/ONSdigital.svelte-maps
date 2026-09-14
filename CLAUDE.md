@@ -6,11 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `@onsvisual/svelte-maps` is a Svelte 5 component library wrapping MapLibre GL JS, published to npm, built as a SvelteKit-style package (via `@sveltejs/package`, matching the current `sv create --template library` convention). `src/lib/` is the published package — `src/lib/index.js` re-exports the four components. `src/routes/` is a SvelteKit demo app, not part of the published package; it's built and deployed separately to GitHub Pages.
 
-Requires Svelte 5.0.0+ (peer dependency). Ships plain JS/Svelte source, no TypeScript in components — `jsconfig.json` exists only so `svelte-package`'s type-declaration emission (best-effort `.d.ts` files, no source annotations needed) and `svelte-check` have something to resolve against.
+Requires Svelte 5.0.0+ (peer dependency) and a Vite-based bundler — `Map.svelte` resolves MapLibre's worker script via a Vite-specific `?worker&url` import (see "Worker-script loading" below), so consumers must build with Vite/SvelteKit. Ships plain JS/Svelte source, no TypeScript in components — `jsconfig.json` exists only so `svelte-package`'s type-declaration emission (best-effort `.d.ts` files, no source annotations needed) and `svelte-check` have something to resolve against.
 
 ## Commands
 
-- `npm run dev` — copies MapLibre's worker script into `static/maplibre/` (see below), then runs `vite dev`. Use this to interactively test component changes against `src/routes/+page.svelte`.
+- `npm run dev` — runs `vite dev`. Use this to interactively test component changes against `src/routes/+page.svelte`.
 - `npm run build` — runs `build:demo` (production build of the demo app via `vite build` + `@sveltejs/adapter-static`, output to `build/`) then `package` (builds the npm-publishable library from `src/lib` via `@sveltejs/package`, output to `dist/`). These are independent — run `npm run package` alone to build just the library.
 - `npm run preview` — serves the already-built demo (`build/`) via `vite preview`.
 - `npm run deploy` — runs `build:demo` then publishes `build/` to GitHub Pages via `gh-pages` (the live demo at onsdigital.github.io/svelte-maps).
@@ -22,7 +22,9 @@ Requires Svelte 5.0.0+ (peer dependency). Ships plain JS/Svelte source, no TypeS
 
 ### Worker-script loading
 
-MapLibre GL JS resolves its tile-processing worker script relative to its own bundled module URL by default — a resolution that breaks under any bundler that chunks/hashes its output (Vite's dev-mode dependency pre-bundling, SvelteKit's hashed production chunks). Instead of relying on that, `scripts/copy-maplibre-worker.js` (run before both `vite dev` and `vite build`) copies `maplibre-gl-worker.mjs` + its own nested `maplibre-gl-shared.mjs` import (+ `.map` files) from `node_modules/maplibre-gl/dist/` into a fixed path, `static/maplibre/`. The demo (`src/routes/+page.svelte`) then calls MapLibre's own public `setWorkerUrl()` API pointing at that same-origin static path, before mounting any `<Map>`. This is demo-owned, not baked into `Map.svelte` — a `workerUrl` prop that does this internally would be a reasonable future addition, not yet implemented. Verified working identically in both `vite dev` and the production `build/` output (curl-checked, not just reasoned about) — this exact class of dev/prod asymmetry cost real debugging time before landing on this approach.
+MapLibre GL JS resolves its tile-processing worker script relative to its own bundled module URL by default — a resolution that breaks under any bundler that chunks, hashes, or dev-mode pre-bundles its output (confirmed: Vite's default dependency optimizer pre-bundles maplibre-gl for any app that imports it, which relocates the module and breaks this — surfaces as `.../node_modules/.vite/deps/maplibre-gl-worker.mjs` "file does not exist" errors in a consumer's own `vite dev`).
+
+This is handled inside `Map.svelte` itself (`<script context="module">`), not left to consumers or the demo: it imports the worker via Vite's own `?worker&url` syntax (`import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url"`) and calls maplibre-gl's `setWorkerUrl()` once, before any map mounts. Unlike a plain `?url` import, `?worker&url` runs the worker file through Vite's module graph, which correctly resolves its own nested `maplibre-gl-shared.mjs` import too (inlined in a production build; rewritten to a resolvable absolute URL in dev) — verified directly in both modes, not just reasoned about. This makes the published package require a Vite-based bundler (documented in the README as a breaking change); there is no longer a `scripts/copy-maplibre-worker.js` or any consumer-facing `setWorkerUrl()` call to maintain.
 
 ## Architecture
 
