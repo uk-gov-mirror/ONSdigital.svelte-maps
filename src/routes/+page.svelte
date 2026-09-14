@@ -1,14 +1,24 @@
+<script context="module">
+	// MapLibre GL JS resolves its tile-processing worker script relative to its
+	// own bundled module URL by default — breaks under Vite's dependency
+	// pre-bundling in dev and hashed chunks in production. This must live in
+	// first-party app code (never inside a published Svelte library's own
+	// component — see the README's "Worker script setup" section for why),
+	// so it's here rather than in Map.svelte. `?worker&url` is Vite's own
+	// worker-asset import: it runs the worker file through Vite's module
+	// graph, which correctly bundles its nested `maplibre-gl-shared.mjs`
+	// import too — no manual file-copying needed, unlike the old approach.
+	// Same pattern as https://github.com/dimfeld/svelte-maplibre's own docs.
+	import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
+	import { setWorkerUrl } from "maplibre-gl";
+	setWorkerUrl(maplibreWorkerUrl);
+</script>
+
 <script>
 	// Components for working with Mapbox layers
 	import { getData, getColor, getTopo } from "./utils.js";
 	import { Map, MapSource, MapLayer, MapTooltip } from "$lib";
 	import { base } from "$app/paths";
-	import { setWorkerUrl } from "maplibre-gl";
-
-	// See scripts/copy-maplibre-worker.js — this points maplibre-gl at a
-	// same-origin copy of its worker script instead of relying on its
-	// default (bundler-chunking-sensitive) self-relative resolution.
-	setWorkerUrl(`${base}/maplibre/maplibre-gl-worker.mjs`);
 
 	const colors = {
 		seq5: [

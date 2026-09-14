@@ -26,39 +26,19 @@ If you want to load a different/customized stylesheet instead, pass the `css` pr
 
 MapLibre GL JS resolves its tile-processing worker script relative to its own bundled module URL by default. That resolution breaks under any bundler that chunks or hashes maplibre-gl's output (Vite's dependency pre-bundling in dev, SvelteKit's hashed client chunks in production, etc.), because nothing at that computed URL actually exists. This package can't fix it for you internally — see "Why this isn't handled automatically" below — so it's a required setup step in your own app.
 
-**1. Copy the worker script into your own static assets**, e.g. as a `postinstall`/prebuild script (adapt paths to your bundler):
+If you're on Vite (any SvelteKit app included), import the worker with Vite's own `?worker&url` syntax and call `setWorkerUrl()` before mounting any `<Map>` — same pattern used by [dimfeld/svelte-maplibre](https://github.com/dimfeld/svelte-maplibre#usage). Put this in your root layout (`<script module>` in a `+layout.svelte`) so it runs once before any page:
 
-```js
-// copy-maplibre-worker.js — run before `vite dev` / `vite build`
-import { copyFileSync, existsSync, mkdirSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-
-const here = dirname(fileURLToPath(import.meta.url));
-const srcDir = join(here, "node_modules", "maplibre-gl", "dist");
-const outDir = join(here, "static", "maplibre"); // or `public/maplibre` etc.
-
-if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
-
-for (const name of [
-	"maplibre-gl-worker.mjs",
-	"maplibre-gl-worker.mjs.map",
-	"maplibre-gl-shared.mjs", // the worker's own nested import — must sit alongside it
-	"maplibre-gl-shared.mjs.map"
-]) {
-	const src = join(srcDir, name);
-	if (existsSync(src)) copyFileSync(src, join(outDir, name));
-}
+```svelte
+<script module>
+	import { setWorkerUrl } from "maplibre-gl";
+	import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
+	setWorkerUrl(maplibreWorkerUrl);
+</script>
 ```
 
-**2. Call `setWorkerUrl()` pointing at that same-origin path, before mounting any `<Map>`:**
+`?worker&url` runs the worker file through Vite's own module graph, so it correctly bundles the worker's own nested `maplibre-gl-shared.mjs` import too (inlined in a production build; resolved to a real URL in dev) — no manual file-copying needed, in dev or prod. This repo's own demo does exactly this — see the module script at the top of `src/routes/+page.svelte`.
 
-```js
-import { setWorkerUrl } from "maplibre-gl";
-setWorkerUrl("/maplibre/maplibre-gl-worker.mjs"); // prefix with your app's base path if it has one
-```
-
-This repo's own demo does exactly this — see `scripts/copy-maplibre-worker.js` (run before both `vite dev` and `vite build`) and the top of `src/routes/+page.svelte` for a worked reference.
+**If you're not on Vite**, see the [MapLibre installation docs](https://maplibre.org/maplibre-gl-js/docs/#installation) for configuring the worker on your bundler; the general fix is copying `maplibre-gl-worker.mjs` and its nested `maplibre-gl-shared.mjs` import into your own static assets and calling `setWorkerUrl()` pointing at that same-origin path.
 
 **Faster unblock for `vite dev` only, if you haven't wired up the above yet:** the same underlying issue can surface as `The file does not exist at ".../node_modules/.vite/deps/maplibre-gl-worker.mjs" which is in the optimize deps directory` — this happens because Vite's dev-server dependency optimizer pre-bundles `maplibre-gl` by default, which relocates it and breaks its self-relative worker lookup. Excluding it from that optimizer avoids the relocation entirely:
 
@@ -69,11 +49,11 @@ export default defineConfig({
 });
 ```
 
-This fixes `vite dev` on its own, but **not** a production build (Rollup chunks/hashes maplibre-gl the same way) — steps 1–2 above are still required before deploying.
+This fixes `vite dev` on its own, but **not** a production build (Rollup chunks/hashes maplibre-gl the same way) — the `?worker&url` snippet above is still required before deploying.
 
 ### Why this isn't handled automatically
 
-We tried baking this into `Map.svelte` itself via Vite's `?worker&url` import syntax, which would have needed zero consumer-side config. It works when tested inside this repo's own demo — but breaks a real npm-installed consumer outright: `@sveltejs/vite-plugin-svelte` prebundles library `.svelte` files by default (`prebundleSvelteLibraries`), and Vite's worker-query plugin isn't part of that prebundling pipeline, so `vite dev` crashes before it even starts (`UNLOADABLE_DEPENDENCY ... Could not load node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url`). Special Vite import-query syntax can't reliably be used inside a _published_ Svelte library's own source — only in first-party app code, which is never subject to that prebundling step. Hence the copy-script + `setWorkerUrl()` pattern above stays a consumer-side step.
+We tried baking this into `Map.svelte` itself via the same `?worker&url` import syntax, which would have needed zero consumer-side config. It works when tested inside this repo's own demo — but breaks a real npm-installed consumer outright: `@sveltejs/vite-plugin-svelte` prebundles library `.svelte` files by default (`prebundleSvelteLibraries`), and Vite's worker-query plugin isn't part of that prebundling pipeline, so `vite dev` crashes before it even starts (`UNLOADABLE_DEPENDENCY ... Could not load node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url`). Special Vite import-query syntax can't reliably be used inside a _published_ Svelte library's own source — only in first-party app code, which is never subject to that prebundling step. `dimfeld/svelte-maplibre` hits the exact same constraint and documents the identical workaround: the `setWorkerUrl()` call lives in their demo's routes, never inside their own `MapLibre.svelte` component. Hence it stays a consumer-side step here too.
 
 ## Interaction options
 

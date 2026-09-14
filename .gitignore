@@ -2,6 +2,5 @@
 /.svelte-kit/
 /build/
 /dist/
-/static/maplibre/
 
 .DS_Store
