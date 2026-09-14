@@ -3,9 +3,12 @@
 	import { getData, getColor, getTopo } from "./utils.js";
 	import { Map, MapSource, MapLayer, MapTooltip } from "$lib";
 	import { base } from "$app/paths";
+	import { setWorkerUrl } from "maplibre-gl";
 
-	// Worker script setup is handled internally by Map.svelte (via a Vite
-	// `?worker&url` import + setWorkerUrl()) — nothing needed here.
+	// See scripts/copy-maplibre-worker.js — this points maplibre-gl at a
+	// same-origin copy of its worker script instead of relying on its
+	// default (bundler-chunking-sensitive) self-relative resolution.
+	setWorkerUrl(`${base}/maplibre/maplibre-gl-worker.mjs`);
 
 	const colors = {
 		seq5: [

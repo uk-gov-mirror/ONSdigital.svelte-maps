@@ -1,12 +1,3 @@
-<script context="module">
-	// MapLibre GL JS resolves its tile-processing worker script relative to its
-	// own module URL by default. This is a Vite-only fix that allows workers to
-    // run correctly in both dev and build without app-level config.
-	import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
-	import { setWorkerUrl } from "maplibre-gl";
-	setWorkerUrl(workerUrl);
-</script>
-
 <script>
 	import { setContext, createEventDispatcher, onMount } from "svelte";
 	import { Map, NavigationControl, GeolocateControl } from "maplibre-gl";
@@ -14,6 +5,12 @@
 	// to handle CSS imports (Vite, webpack, etc.) — no runtime CDN fetch, and
 	// always matches whatever maplibre-gl version the consumer has installed.
 	import "maplibre-gl/dist/maplibre-gl.css";
+
+	// MapLibre GL JS resolves its tile-processing worker script relative to its
+	// own module URL by default (same-origin only — the Worker constructor
+	// rejects a cross-origin script URL regardless of CORS headers, so this
+	// can't be pointed at a CDN). Whatever build produces the final bundle must
+	// ensure maplibre-gl-worker.mjs is copied alongside it; see rollup configs.
 
 	const dispatch = createEventDispatcher();
 

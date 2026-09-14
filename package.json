@@ -1,12 +1,12 @@
 {
 	"name": "@onsvisual/svelte-maps",
-	"version": "2.0.1",
+	"version": "2.0.2",
 	"description": "Reusable map components for Svelte projects.",
 	"homepage": "http://onsdigital.github.io/svelte-maps",
 	"scripts": {
-		"dev": "vite dev",
+		"dev": "node scripts/copy-maplibre-worker.js && vite dev",
 		"build": "npm run build:demo && npm run package",
-		"build:demo": "vite build",
+		"build:demo": "node scripts/copy-maplibre-worker.js && vite build",
 		"package": "svelte-kit sync && svelte-package && publint",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
