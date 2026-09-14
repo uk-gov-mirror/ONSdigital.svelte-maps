@@ -1,15 +1,25 @@
 <script>
 	import { getContext, setContext, onMount, onDestroy } from 'svelte';
 	
+	/** MapLibre source id, unique within the map. Any pre-existing source with this id is removed before adding. @type {string} */
 	export let id;
+	/** Source type. @type {"geojson" | "vector" | "raster" | "raster-dem"} */
 	export let type;
+	/** Tile URL template (`vector`/`raster`/`raster-dem`) or a GeoJSON URL (`geojson`, used only when `data` isn't set). Reassigning updates the source in place rather than recreating it. @type {string | null} */
 	export let url = null;
+	/** Extra MapLibre source properties merged into the generated source definition. @type {object} */
 	export let props = {};
+	/** Inline GeoJSON data (`geojson` sources only). Reassigning calls the source's `setData` in place. @type {object | null} */
 	export let data = null;
+	/** Vector tile source-layer name. Also passed down via context so a nested `<MapLayer>` can default its own `sourceLayer`/`idKey` from it. @type {string | null} */
 	export let layer = null;
+	/** Feature property (or, with `layer` set, `{ [layer]: property }`) to promote to the feature id, so features can be targeted by `setFeatureState`. @type {string | null} */
 	export let promoteId = null;
+	/** Minimum zoom level at which tiles from this source are available. @type {number | null} */
 	export let minzoom = null;
+	/** Maximum zoom level at which tiles from this source are available. @type {number | null} */
 	export let maxzoom = null;
+	/** Tile size in pixels (`raster`/`raster-dem` sources only). @type {number} */
 	export let tilesize = 256;
 	
 	let loaded = false;

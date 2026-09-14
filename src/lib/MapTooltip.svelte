@@ -2,6 +2,7 @@
   import { getContext, onDestroy } from 'svelte';
   import { Popup } from 'maplibre-gl';
 
+  /** HTML/text shown in the popup while a feature is hovered on the parent `<MapLayer>` (which must have `hover={true}`). Reactive — updates the open popup as it changes. @type {string} */
   export let content;
 
   const tooltip = new Popup({

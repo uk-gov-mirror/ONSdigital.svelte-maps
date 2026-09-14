@@ -4,29 +4,58 @@
 
 	const dispatch = createEventDispatcher();
 	
+	/** MapLibre layer id, unique within the map. Any pre-existing layer with this id is removed before adding. @type {string} */
 	export let id;
+	/** MapLibre layer type (`"fill"`, `"line"`, `"circle"`, etc). @type {string} */
 	export let type;
+	/** MapLibre filter expression. Reactive — reassigning calls `setFilter`. @type {any[] | null} */
 	export let filter = null;
+	/** MapLibre layout properties. Reactive — reassigning calls `setLayoutProperty` for each key (does not remove keys no longer present). @type {object} */
 	export let layout = {};
+	/** MapLibre paint properties. Reactive — reassigning calls `setPaintProperty` for each key (does not remove keys no longer present). @type {object} */
 	export let paint = {};
+	/**
+	 * Array of data points used to drive this layer's `color`/`value`/`name`
+	 * feature-state, one entry per feature (matched via `idKey`). Reactive —
+	 * reassigning calls the exported `updateColors` method.
+	 * @type {object[] | null}
+	 */
 	export let data = null;
+	/** Key read from each `data` item for the `color` feature-state. @type {string} */
 	export let colorKey = "color";
+	/** Key read from each `data` item for the `name` feature-state. @type {string | null} */
 	export let nameKey = null;
+	/** Key read from each `data` item for the `value` feature-state. @type {string | null} */
 	export let valueKey = null;
+	/** Key read from each `data` item to match it to a feature id. Defaults to the parent `<MapSource>`'s `promoteId`. @type {string | null} */
 	export let idKey = null;
+	/** Whether clicking a feature sets the `selected` feature-state and dispatches a `select` event. @type {boolean} */
 	export let select = false;
+	/** When `true`, suppresses the `select` behaviour on click (the click listener still attaches, but does nothing) without having to toggle `select` itself. @type {boolean} */
 	export let clickIgnore = false;
+	/** When `true`, clicking a feature also flies the map to that feature's centroid. @type {boolean} */
 	export let clickCenter = false;
+	/** Id of the currently-selected feature. Bindable — settable from outside to change selection, and updated internally on click when `select` is enabled. @type {string | number | null} */
 	export let selected = null;
+	/** Whether moving the mouse over a feature sets the `hovered` feature-state, dispatches a `hover` event, and updates the `hover` context store that `<MapTooltip>` reads. @type {boolean} */
 	export let hover = false;
+	/** Id of the currently-hovered feature. Bindable, same read/write behaviour as `selected`. Also exposed as a slot prop. @type {string | number | null} */
 	export let hovered = null;
+	/** Whether entries in `highlighted` get a truthy `highlightKey` feature-state. @type {boolean} */
 	export let highlight = false;
+	/** Feature-state key set/cleared for ids in `highlighted`. @type {string} */
 	export let highlightKey = 'highlighted';
+	/** Feature ids to mark with the `highlightKey` feature-state. Reactive — reassigning clears the state for ids no longer present and sets it for new ones. @type {(string | number)[]} */
 	export let highlighted = [];
+	/** Id of an existing layer to insert this layer before (MapLibre's `beforeId`). `null` appends on top. @type {string | null} */
 	export let order = null;
+	/** Maximum zoom level at which this layer is visible. @type {number | null} */
 	export let maxzoom = null;
+	/** Minimum zoom level at which this layer is visible. @type {number | null} */
 	export let minzoom = null;
+	/** Vector tile source-layer this layer reads from. Defaults to the parent `<MapSource>`'s `layer`. @type {string | null} */
 	export let sourceLayer = null;
+	/** Whether the layer is shown. Reactive — reassigning toggles the `visibility` layout property, unless `layout.visibility` is already set explicitly. @type {boolean} */
 	export let visible = true;
 	
 	const { source, layer, promoteId } = getContext('source');

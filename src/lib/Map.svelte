@@ -18,13 +18,23 @@
 
   const dispatch = createEventDispatcher();
 
+  /** The MapLibre GL `Map` instance. Bindable — starts `undefined`, set internally once the map is created on mount. @type {import('maplibre-gl').Map} */
   export let map;
+  /** DOM id given to the map's container `<div>`. @type {string} */
   export let id = "map";
+  /**
+   * Initial camera position. Either `{ bounds }` (a `[[sw],[ne]]` LngLat pair)
+   * or `{ lng, lat, zoom, pitch?, bearing? }`. Only read on mount — use the
+   * bindable `zoom`/`center`/`pitch`/`bearing` props to read/drive the camera
+   * afterwards.
+   * @type {{ bounds?: [[number, number], [number, number]], lng?: number, lat?: number, zoom?: number, pitch?: number, bearing?: number }}
+   */
   export let location = {
     lng: 15,
     lat: 45,
     zoom: 1,
   };
+  /** MapLibre style spec object, or a URL to one. Reactive — reassigning triggers `setStyle`. @type {object | string} */
   export let style = {
     version: 8,
     sources: {},
@@ -36,19 +46,32 @@
       },
     ],
   }; // Can be a json style definition or a url
+  /** Extra MapLibre `MapOptions` merged into the options derived from `location`/`attribution`/`scrollZoomGuard`. @type {object} */
   export let options = {};
+  /** Minimum allowed zoom level. @type {number} */
   export let minzoom = 0;
+  /** Maximum allowed zoom level. @type {number} */
   export let maxzoom = 14;
+  /** Which navigation controls to add: `true` for the default zoom buttons, or an array including `"compass"`/`"pitch"`/`"locate"`. @type {boolean | string[]} */
   export let controls = false;
+  /** Whether the map canvas can receive keyboard focus via Tab. @type {boolean} */
   export let tabbable = false;
+  /** When `true`/`false`, maps to MapLibre's `cooperativeGestures` (scroll-to-zoom requires cmd/ctrl); overrides `options.cooperativeGestures` when both are set. `null` leaves the default behaviour untouched. @type {boolean | null} */
   export let scrollZoomGuard = null;
 
+  /** Current zoom level. Bindable — read after `load`/`moveend`, or set to move the camera. @type {number | null} */
   export let zoom = null;
+  /** Current map center. Bindable, same read/write behaviour as `zoom`. @type {import('maplibre-gl').LngLat | null} */
   export let center = null;
+  /** Current pitch (tilt), in degrees. Bindable, same read/write behaviour as `zoom`. @type {number | null} */
   export let pitch = null;
+  /** Current bearing (rotation), in degrees. Bindable, same read/write behaviour as `zoom`. @type {number | null} */
   export let bearing = null;
+  /** Whether the map responds to user interaction (pan/zoom/rotate). @type {boolean} */
   export let interactive = true;
+  /** Whether to show the default MapLibre attribution control. @type {boolean} */
   export let attribution = true;
+  /** Accessible label (`aria-label`) applied to the map canvas. @type {string} */
   export let mapDescription = "Map";
 
   let container;
