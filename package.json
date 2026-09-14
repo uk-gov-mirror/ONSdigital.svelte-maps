@@ -1,66 +1,70 @@
 {
-  "name": "@onsvisual/svelte-maps",
-  "version": "2.0.0",
-  "description": "Reusable map components for Svelte projects.",
-  "homepage": "http://onsdigital.github.io/svelte-maps",
-  "scripts": {
-    "dev": "node scripts/copy-maplibre-worker.js && vite dev",
-    "build": "npm run build:demo && npm run package",
-    "build:demo": "node scripts/copy-maplibre-worker.js && vite build",
-    "package": "svelte-kit sync && svelte-package && publint",
-    "preview": "vite preview",
-    "prepare": "svelte-kit sync || echo ''",
-    "prepack": "npm run package",
-    "deploy": "npm run build:demo && gh-pages -d build",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
-    "test": "echo \"No test specified\""
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/onsdigital/svelte-maps.git"
-  },
-  "keywords": [
-    "svelte",
-    "maps",
-    "mapbox",
-    "dataviz"
-  ],
-  "author": "Ahmad Barclay",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/onsdigital/svelte-maps/issues"
-  },
-  "devDependencies": {
-    "@sveltejs/adapter-static": "^3.0.10",
-    "@sveltejs/kit": "^2.70.3",
-    "@sveltejs/package": "^2.5.8",
-    "@sveltejs/vite-plugin-svelte": "^7.3.0",
-    "d3-dsv": "^3.0.1",
-    "gh-pages": "^6.2.0",
-    "publint": "^0.3.24",
-    "svelte": "^5.56.1",
-    "svelte-check": "^4.7.6",
-    "topojson-client": "^3.1.0",
-    "typescript": "^6.0.3",
-    "vite": "^8.3.0"
-  },
-  "peerDependencies": {
-    "maplibre-gl": "^6.9.0",
-    "svelte": "^5.0.0"
-  },
-  "type": "module",
-  "files": [
-    "dist"
-  ],
-  "sideEffects": [
-    "**/*.css"
-  ],
-  "svelte": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "svelte": "./dist/index.js"
-    }
-  }
+	"name": "@onsvisual/svelte-maps",
+	"version": "2.0.0",
+	"description": "Reusable map components for Svelte projects.",
+	"homepage": "http://onsdigital.github.io/svelte-maps",
+	"scripts": {
+		"dev": "node scripts/copy-maplibre-worker.js && vite dev",
+		"build": "npm run build:demo && npm run package",
+		"build:demo": "node scripts/copy-maplibre-worker.js && vite build",
+		"package": "svelte-kit sync && svelte-package && publint",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo ''",
+		"prepack": "npm run package",
+		"deploy": "npm run build:demo && gh-pages -d build",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
+		"format": "prettier --write .",
+		"format:check": "prettier --check .",
+		"test": "echo \"No test specified\""
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+ssh://git@github.com/onsdigital/svelte-maps.git"
+	},
+	"keywords": [
+		"svelte",
+		"maps",
+		"mapbox",
+		"dataviz"
+	],
+	"author": "Ahmad Barclay",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/onsdigital/svelte-maps/issues"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-static": "^3.0.10",
+		"@sveltejs/kit": "^2.70.3",
+		"@sveltejs/package": "^2.5.8",
+		"@sveltejs/vite-plugin-svelte": "^7.3.0",
+		"d3-dsv": "^3.0.1",
+		"gh-pages": "^6.2.0",
+		"prettier": "^3.9.6",
+		"prettier-plugin-svelte": "^4.1.1",
+		"publint": "^0.3.24",
+		"svelte": "^5.56.1",
+		"svelte-check": "^4.7.6",
+		"topojson-client": "^3.1.0",
+		"typescript": "^6.0.3",
+		"vite": "^8.3.0"
+	},
+	"peerDependencies": {
+		"maplibre-gl": "^6.9.0",
+		"svelte": "^5.0.0"
+	},
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"sideEffects": [
+		"**/*.css"
+	],
+	"svelte": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"svelte": "./dist/index.js"
+		}
+	}
 }

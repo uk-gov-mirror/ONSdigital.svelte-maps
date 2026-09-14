@@ -29,8 +29,8 @@ MapLibre GL JS resolves its tile-processing worker script relative to its own bu
 The supported fix is to copy `maplibre-gl-worker.mjs` and its own nested `maplibre-gl-shared.mjs` import (plus their `.map` files) from `node_modules/maplibre-gl/dist/` into your app's static assets, and call maplibre-gl's own `setWorkerUrl()` — pointing it at that same-origin path — before mounting any `<Map>`:
 
 ```js
-import { setWorkerUrl } from 'maplibre-gl';
-setWorkerUrl('/maplibre/maplibre-gl-worker.mjs');
+import { setWorkerUrl } from "maplibre-gl";
+setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
 ```
 
 This repo's own demo does exactly this — see `scripts/copy-maplibre-worker.js` (run before both `vite dev` and `vite build`) and the top of `src/routes/+page.svelte` for a worked reference.
@@ -40,11 +40,7 @@ This repo's own demo does exactly this — see `scripts/copy-maplibre-worker.js`
 You can mirror the Maps template `scrollZoomGuard` behaviour by enabling guarded scroll zoom:
 
 ```svelte
-<Map
-  id="map"
-  style="./style.json"
-  scrollZoomGuard={true}
-/>
+<Map id="map" style="./style.json" scrollZoomGuard={true} />
 ```
 
 When enabled, map zoom via wheel/trackpad requires a modifier key (cmd/ctrl) plus scroll.

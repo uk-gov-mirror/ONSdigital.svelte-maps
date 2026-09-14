@@ -1,6 +1,6 @@
-import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { copyFileSync, existsSync, mkdirSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 // MapLibre GL JS resolves its tile-processing worker script relative to its
 // own bundled module URL by default — a resolution strategy that breaks
@@ -15,16 +15,16 @@ import { fileURLToPath } from 'node:url';
 // worker-loading behavior depends on how the main maplibre-gl bundle is
 // chunked.
 const here = dirname(fileURLToPath(import.meta.url));
-const srcDir = join(here, '..', 'node_modules', 'maplibre-gl', 'dist');
-const outDir = join(here, '..', 'static', 'maplibre');
+const srcDir = join(here, "..", "node_modules", "maplibre-gl", "dist");
+const outDir = join(here, "..", "static", "maplibre");
 
 if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
 
 for (const name of [
-	'maplibre-gl-worker.mjs',
-	'maplibre-gl-worker.mjs.map',
-	'maplibre-gl-shared.mjs',
-	'maplibre-gl-shared.mjs.map'
+	"maplibre-gl-worker.mjs",
+	"maplibre-gl-worker.mjs.map",
+	"maplibre-gl-shared.mjs",
+	"maplibre-gl-shared.mjs.map"
 ]) {
 	const src = join(srcDir, name);
 	if (existsSync(src)) copyFileSync(src, join(outDir, name));

@@ -1,13 +1,13 @@
-import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vite';
-import adapter from '@sveltejs/adapter-static';
+import { sveltekit } from "@sveltejs/kit/vite";
+import { defineConfig } from "vite";
+import adapter from "@sveltejs/adapter-static";
 
 // Project-page base path for GitHub Pages (onsdigital.github.io/svelte-maps/).
 // Vite sets NODE_ENV to 'production' for `vite build`/`vite preview` and
 // 'development' for `vite dev` automatically. No trailing slash: SvelteKit's
 // default trailingSlash:'never' means a trailing slash here double-slashes
 // every generated URL.
-const base = process.env.NODE_ENV === 'production' ? '/svelte-maps' : '';
+const base = process.env.NODE_ENV === "production" ? "/svelte-maps" : "";
 
 export default defineConfig({
 	plugins: [

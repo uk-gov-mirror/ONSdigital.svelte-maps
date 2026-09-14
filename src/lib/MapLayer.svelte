@@ -1,9 +1,9 @@
 <script>
-	import { getContext, setContext, createEventDispatcher, onDestroy, onMount } from 'svelte';
-	import { writable } from 'svelte/store';
+	import { getContext, setContext, createEventDispatcher, onDestroy, onMount } from "svelte";
+	import { writable } from "svelte/store";
 
 	const dispatch = createEventDispatcher();
-	
+
 	/** MapLibre layer id, unique within the map. Any pre-existing layer with this id is removed before adding. @type {string} */
 	export let id;
 	/** MapLibre layer type (`"fill"`, `"line"`, `"circle"`, etc). @type {string} */
@@ -44,7 +44,7 @@
 	/** Whether entries in `highlighted` get a truthy `highlightKey` feature-state. @type {boolean} */
 	export let highlight = false;
 	/** Feature-state key set/cleared for ids in `highlighted`. @type {string} */
-	export let highlightKey = 'highlighted';
+	export let highlightKey = "highlighted";
 	/** Feature ids to mark with the `highlightKey` feature-state. Reactive — reassigning clears the state for ids no longer present and sets it for new ones. @type {(string | number)[]} */
 	export let highlighted = [];
 	/** Id of an existing layer to insert this layer before (MapLibre's `beforeId`). `null` appends on top. @type {string | null} */
@@ -57,9 +57,9 @@
 	export let sourceLayer = null;
 	/** Whether the layer is shown. Reactive — reassigning toggles the `visibility` layout property, unless `layout.visibility` is already set explicitly. @type {boolean} */
 	export let visible = true;
-	
-	const { source, layer, promoteId } = getContext('source');
-	const { getMap } = getContext('map');
+
+	const { source, layer, promoteId } = getContext("source");
+	const { getMap } = getContext("map");
 	const map = getMap();
 
 	setContext("layer", {
@@ -73,42 +73,42 @@
 	});
 	setContext("hover", hoverObj);
 
-	function sleep (ms = 1000) {
-  	return new Promise((resolve) => setTimeout(resolve, ms));
+	function sleep(ms = 1000) {
+		return new Promise((resolve) => setTimeout(resolve, ms));
 	}
 
 	idKey = idKey ? idKey : promoteId;
 	sourceLayer = sourceLayer ? sourceLayer : layer;
-	
+
 	let selectedPrev = null;
 	let hoveredPrev = null;
 	let highlightedPrev = [];
 
-	let _layout = {...layout};
-	if (!layout.visibility) _layout.visibility = visible ? 'visible' : 'none';
-	
+	let _layout = { ...layout };
+	if (!layout.visibility) _layout.visibility = visible ? "visible" : "none";
+
 	let options = {
-		'id': id,
-		'type': type,
-		'source': source,
-		'paint': paint,
-		'layout': _layout
+		id: id,
+		type: type,
+		source: source,
+		paint: paint,
+		layout: _layout
 	};
 
 	if (filter) {
-		options['filter'] = filter;
+		options["filter"] = filter;
 	}
-	
+
 	if (sourceLayer) {
-		options['source-layer'] = sourceLayer;
+		options["source-layer"] = sourceLayer;
 	}
 	if (maxzoom) {
-		options['maxzoom'] = maxzoom;
+		options["maxzoom"] = maxzoom;
 	}
 	if (minzoom) {
-		options['minzoom'] = minzoom;
+		options["minzoom"] = minzoom;
 	}
-	
+
 	onMount(() => {
 		if (map.getLayer(id)) map.removeLayer(id);
 		map.addLayer(options, order);
@@ -118,30 +118,36 @@
 	// Assumes that each data point has the colours defined on the colorCode key
 	let stateIds = [];
 	export function updateColors(data, cKey = colorKey) {
-		console.debug('updating colors...');
+		console.debug("updating colors...");
 
 		for (const id of stateIds) {
-			map.setFeatureState({
-				source: source,
-				sourceLayer: sourceLayer,
-				id: id
-			}, {
-				color: null,
-				value: null
-			});
+			map.setFeatureState(
+				{
+					source: source,
+					sourceLayer: sourceLayer,
+					id: id
+				},
+				{
+					color: null,
+					value: null
+				}
+			);
 		}
 		stateIds = [];
 
 		for (const d of data) {
-			map.setFeatureState({
-				source: source,
-				sourceLayer: sourceLayer,
-				id: d[idKey]
-			}, {
-				color: cKey ? d[cKey] : null,
-				value: valueKey ? d[valueKey] : null,
-				name: nameKey ? d[nameKey] : null
-			});
+			map.setFeatureState(
+				{
+					source: source,
+					sourceLayer: sourceLayer,
+					id: d[idKey]
+				},
+				{
+					color: cKey ? d[cKey] : null,
+					value: valueKey ? d[valueKey] : null,
+					name: nameKey ? d[nameKey] : null
+				}
+			);
 			stateIds.push(d[idKey]);
 		}
 	}
@@ -160,7 +166,7 @@
 			for (const key in layout) {
 				map.setLayoutProperty(id, key, layout[key]);
 			}
-		};
+		}
 	}
 	$: setLayout(layout);
 
@@ -170,26 +176,24 @@
 			for (const key in paint) {
 				map.setPaintProperty(id, key, paint[key]);
 			}
-		};
+		}
 	}
 	$: setPaint(paint);
 
 	// Function to toggle layer visibility based on "visible" prop
 	function toggleVisibility(visible) {
-		if (!layout.visibility && map.getLayer(id)) map.setLayoutProperty(id, 'visibility', visible ? 'visible' : 'none');
+		if (!layout.visibility && map.getLayer(id))
+			map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
 	}
 	$: toggleVisibility(visible);
-	
+
 	// Updates the "highlighted" feature state as geo codes are added to/removed from the highlighted array
 	$: if (highlight && highlighted != highlightedPrev) {
 		if (highlightedPrev[0]) {
 			for (const id of highlightedPrev) {
 				let state = {};
 				state[highlightKey] = false;
-				map.setFeatureState(
-					{ source, sourceLayer, id },
-					state
-				);
+				map.setFeatureState({ source, sourceLayer, id }, state);
 			}
 		}
 		highlightedPrev = highlighted;
@@ -197,37 +201,34 @@
 			for (const id of highlighted) {
 				let state = {};
 				state[highlightKey] = true;
-				map.setFeatureState(
-					{ source, sourceLayer, id },
-					state
-				);
+				map.setFeatureState({ source, sourceLayer, id }, state);
 			}
 		}
 	}
-	
+
 	// Adds a click event to change the selected geo code (if select = true for map layer)
 	if (select) {
-		map.on('click', id, (e) => {
-      if (e.features.length > 0 && !clickIgnore) {
+		map.on("click", id, (e) => {
+			if (e.features.length > 0 && !clickIgnore) {
 				let feature = e.features[0];
 				selected = feature.id;
 
-				dispatch('select', {
+				dispatch("select", {
 					id: selected,
 					feature: feature,
 					event: e
 				});
-				
+
 				if (selectedPrev) {
 					map.setFeatureState(
-            { source: source, sourceLayer: sourceLayer, id: selectedPrev },
-            { selected: false }
-          );
+						{ source: source, sourceLayer: sourceLayer, id: selectedPrev },
+						{ selected: false }
+					);
 				}
-				
+
 				map.setFeatureState(
-          { source: source, sourceLayer: sourceLayer, id: selected },
-          { selected: true }
+					{ source: source, sourceLayer: sourceLayer, id: selected },
+					{ selected: true }
 				);
 
 				if (clickCenter) {
@@ -236,12 +237,12 @@
 						center: center.geometry.coordinates
 					});
 				}
-				
+
 				selectedPrev = selected;
 			}
-    });
+		});
 	}
-	
+
 	// Updates the selected geo code if it is changed elsewhere in the app (outside of this component)
 	$: if (select && selected != selectedPrev) {
 		if (selectedPrev) {
@@ -258,17 +259,17 @@
 		}
 		selectedPrev = selected;
 	}
-	
+
 	// Adds an event to update the hovered geo code when the mouse is moved over the map
 	if (hover) {
-		map.on('mousemove', id, (e) => {
-      if (e.features.length > 0) {
+		map.on("mousemove", id, (e) => {
+			if (e.features.length > 0) {
 				if (hovered) {
-          map.setFeatureState(
-            { source: source, sourceLayer: sourceLayer, id: hovered },
-            { hovered: false }
-          );
-        }
+					map.setFeatureState(
+						{ source: source, sourceLayer: sourceLayer, id: hovered },
+						{ hovered: false }
+					);
+				}
 				let feature = e.features[0];
 				hovered = hoveredPrev = feature.id;
 
@@ -278,25 +279,25 @@
 					event: e
 				});
 
-				dispatch('hover', $hoverObj);
+				dispatch("hover", $hoverObj);
 
-        map.setFeatureState(
-          { source: source, sourceLayer: sourceLayer, id: hovered },
-          { hovered: true }
-        );
-
-        // Change the cursor style as a UI indicator.
-				map.getCanvas().style.cursor = 'pointer';
-      }
-		});
-		
-		map.on('mouseleave', id, (e) => {
-			if (hovered) {
-        map.setFeatureState(
-          { source: source, sourceLayer: sourceLayer, id: hovered },
-          { hovered: false }
+				map.setFeatureState(
+					{ source: source, sourceLayer: sourceLayer, id: hovered },
+					{ hovered: true }
 				);
-      }
+
+				// Change the cursor style as a UI indicator.
+				map.getCanvas().style.cursor = "pointer";
+			}
+		});
+
+		map.on("mouseleave", id, (e) => {
+			if (hovered) {
+				map.setFeatureState(
+					{ source: source, sourceLayer: sourceLayer, id: hovered },
+					{ hovered: false }
+				);
+			}
 			hovered = hoveredPrev = null;
 
 			hoverObj.set({
@@ -305,30 +306,30 @@
 				event: e
 			});
 
-			dispatch('hover', $hoverObj);
-			
+			dispatch("hover", $hoverObj);
+
 			// Reset cursor and remove popup
-			map.getCanvas().style.cursor = '';
-    });
+			map.getCanvas().style.cursor = "";
+		});
 	}
-	
+
 	// Updates the hovered geo code if it is changed elsewhere in the app (outside of this component)
 	$: if (hover && hovered != hoveredPrev) {
 		if (hoveredPrev) {
 			map.setFeatureState(
 				{ source: source, sourceLayer: sourceLayer, id: hoveredPrev },
-        { hovered: false }
+				{ hovered: false }
 			);
 		}
 		if (hovered) {
 			map.setFeatureState(
 				{ source: source, sourceLayer: sourceLayer, id: hovered },
-        { hovered: true }
+				{ hovered: true }
 			);
 		}
 		hoveredPrev = hovered;
 	}
-	
+
 	onDestroy(async () => {
 		if (typeof map?.getLayer === "function" && map.getLayer(id)) map.removeLayer(id);
 	});
