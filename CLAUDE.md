@@ -15,7 +15,8 @@ Requires Svelte 5.0.0+ (peer dependency). Ships plain JS/Svelte source, no TypeS
 - `npm run preview` — serves the already-built demo (`build/`) via `vite preview`.
 - `npm run deploy` — runs `build:demo` then publishes `build/` to GitHub Pages via `gh-pages` (the live demo at onsdigital.github.io/svelte-maps).
 - `npm run check` — type-checks via `svelte-check` against `jsconfig.json`.
-- There is no test suite (`npm test` is a no-op) and no linter configured.
+- `npm run format` / `npm run format:check` — Prettier, write or check-only. Config (`.prettierrc`, tabs/100-width/no-trailing-commas) and the VS Code format-on-save setup (`.vscode/settings.json`) are copied from [ONSdigital/svelte-components](https://github.com/ONSdigital/svelte-components) to keep formatting consistent across ONS's Svelte repos — check that repo before diverging from it here.
+- There is no test suite (`npm test` is a no-op) and no linter (ESLint) configured — only formatting.
 - **`dist/` vs `build/`**: easy to conflate — `dist/` is the npm-publish output of `src/lib` (via `svelte-package`); `build/` is the demo's static site output (via `adapter-static`), what gets deployed to GitHub Pages. Both are gitignored.
 - When bumping the published version, update the `version` field in `package.json`.
 
@@ -50,3 +51,4 @@ Four components compose in a strict parent/child hierarchy, wired together with 
 - `onDestroy` handlers must remove layers before their source (MapLibre throws otherwise) and check `typeof map?.getX === "function"` since the map itself may already be gone during teardown.
 - New bindable interaction props (like `selected`/`hovered`) should follow the existing `prop` + `propPrev` + reactive-block pattern to support two-way binding without infinite reactive loops.
 - Context keys (`map`, `source`, `layer`, `hover`) are the integration surface between these four components — don't rename them without updating every consumer in this chain.
+- Every exported prop (`export let ...`) on the four components has a `/** ... @type {...} */` JSDoc comment above it — this is what `svelte-package` uses to emit real `.d.ts` types for consumers instead of TypeScript's inferred (and much worse) guesses from usage. New or changed props should follow the same pattern.
