@@ -11,7 +11,7 @@
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"prepack": "npm run package",
-		"deploy": "npm run build:demo && gh-pages -d build",
+		"deploy": "npm run build:demo && gh-pages -d build -t",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",
